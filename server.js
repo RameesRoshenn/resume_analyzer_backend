@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://resume-analyzer-frontend-sigma.vercel.app/',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
