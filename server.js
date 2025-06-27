@@ -5,25 +5,41 @@ const analyzeRouter = require('./routes/analyze');
 
 const app = express();
 
-// Enhanced logging middleware
+// Allowed frontends (localhost + Vercel)
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://resume-analyzer-frontend-sigma.vercel.app'
+];
+
+// CORS setup to support frontend on Vercel
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`Blocked by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+}));
+
+// Enhanced logging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Middleware
-app.use(cors({
-  origin: 'https://resume-analyzer-frontend-sigma.vercel.app/',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
-}));
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api', analyzeRouter); // This prefixes all analyzeRouter routes with /api
+// API routes
+app.use('/api', analyzeRouter);
 
-// Test endpoint
+// API test endpoint
 app.get('/api/status', (req, res) => {
   res.json({ 
     status: 'API is working',
@@ -34,7 +50,7 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// 404 Handler for undefined routes
+// 404 route handler
 app.use((req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -46,7 +62,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handling middleware
+// General error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({ 
@@ -55,11 +71,11 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Available routes:');
-  console.log(`- GET  http://localhost:${PORT}/api/status`);
-  console.log(`- POST http://localhost:${PORT}/api/analyze`);
-  console.log('API Key Status:', process.env.GEMINI_API_KEY ? 'Exists' : 'Missing');
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🌐 GET  http://localhost:${PORT}/api/status`);
+  console.log(`📨 POST http://localhost:${PORT}/api/analyze`);
+  console.log(`🔑 API Key Status: ${process.env.GEMINI_API_KEY ? 'Exists' : 'Missing'}`);
 });
