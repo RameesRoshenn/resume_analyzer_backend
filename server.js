@@ -5,13 +5,13 @@ const analyzeRouter = require('./routes/analyze');
 
 const app = express();
 
-// Allowed frontends (localhost + Vercel)
+// ✅ Allowed origins: localhost and Vercel frontend
 const allowedOrigins = [
   'http://localhost:3000',
   'https://resume-analyzer-frontend-sigma.vercel.app'
 ];
 
-// CORS setup to support frontend on Vercel
+// ✅ Robust CORS setup for Render & Vercel
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -26,20 +26,20 @@ app.use(cors({
   credentials: true
 }));
 
-// Enhanced logging
+// ✅ Log incoming requests
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Body parsers
+// ✅ Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API routes
+// ✅ Main route
 app.use('/api', analyzeRouter);
 
-// API test endpoint
+// ✅ Status check route
 app.get('/api/status', (req, res) => {
   res.json({ 
     status: 'API is working',
@@ -50,7 +50,7 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// 404 route handler
+// ✅ 404 handler
 app.use((req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -62,7 +62,7 @@ app.use((req, res) => {
   });
 });
 
-// General error handler
+// ✅ Error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({ 
@@ -71,11 +71,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌐 GET  http://localhost:${PORT}/api/status`);
-  console.log(`📨 POST http://localhost:${PORT}/api/analyze`);
-  console.log(`🔑 API Key Status: ${process.env.GEMINI_API_KEY ? 'Exists' : 'Missing'}`);
+  console.log(`🔗 http://localhost:${PORT}/api/status`);
+  console.log(`📨 POST /api/analyze`);
+  console.log(`🔑 GEMINI API Key: ${process.env.GEMINI_API_KEY ? 'Exists' : 'Missing'}`);
 });
